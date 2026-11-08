@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>OpportunityPilot AI — Opportunity Assistant</title>
+<style>
+:root{--ink:#172033;--muted:#64748b;--bg:#f4f7fb;--card:#fff;--line:#e5eaf2;--navy:#101827;--blue:#4968f2;--mint:#dff8ef;--gold:#f4c96b;--shadow:0 12px 32px rgba(22,34,58,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+header{background:var(--navy);color:#fff;padding:18px 5vw;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:1.1rem;letter-spacing:-.4px}.brand span{color:var(--gold)}.status{font-size:.78rem;color:#c7d2e4;border:1px solid #42506a;border-radius:30px;padding:6px 10px}
+main{max-width:1040px;margin:auto;padding:28px 18px 60px}.hero{background:linear-gradient(130deg,#111d35,#263b70);color:#fff;border-radius:24px;padding:30px 26px;margin-bottom:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.eyebrow{font-size:.74rem;letter-spacing:1.7px;text-transform:uppercase;color:#b9c8ff;font-weight:700}.hero h1{font-size:clamp(2rem,7vw,3.6rem);line-height:1.05;letter-spacing:-1.7px;margin:13px 0}.hero h1 em{color:var(--gold);font-style:normal}.hero p{max-width:620px;color:#d9e2f5;margin:0;font-size:1.02rem}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
+h2{font-size:1.18rem;margin:0 0 6px;letter-spacing:-.3px}.sub{color:var(--muted);font-size:.9rem;margin:0 0 18px}
+label{display:block;font-size:.88rem;font-weight:700;margin:14px 0 7px}select,textarea,input{width:100%;border:1px solid #d7deea;border-radius:11px;padding:12px 13px;font:inherit;color:var(--ink);background:#fff}textarea{min-height:150px;resize:vertical}select:focus,textarea:focus,input:focus{outline:3px solid #dfe5ff;border-color:var(--blue)}
+button{border:0;border-radius:11px;padding:12px 16px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#fff;width:100%;margin-top:14px}.primary:active{transform:scale(.99)}.secondary{background:#eef2ff;color:#3346b8;padding:9px 12px;font-size:.85rem}.danger{background:#fff0f0;color:#a33131}.muted{color:var(--muted)}
+.result{display:none;margin-top:18px;border:1px solid #dbe4ff;background:#f8faff;border-radius:14px;padding:16px}.result h3{margin:0 0 8px;font-size:1rem}.result ul{padding-left:20px;margin:8px 0}.pill{display:inline-block;border-radius:30px;background:var(--mint);color:#17694c;padding:4px 9px;font-size:.75rem;font-weight:800;margin:3px 4px 3px 0}
+.list{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:12px;padding:12px}.item strong{display:block}.item small{color:var(--muted)}.empty{color:var(--muted);font-size:.9rem;padding:12px 0}
+.log{font-family:ui-monospace,monospace;font-size:.78rem;color:#526078;white-space:pre-wrap;max-height:180px;overflow:auto}
+.notice{font-size:.82rem;color:#775719;background:#fff7df;border:1px solid #f3e4b6;border-radius:12px;padding:11px 12px;margin-top:14px}
+footer{text-align:center;color:#8993a5;font-size:.8rem;padding:10px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}main{padding:18px 13px 40px}.hero{padding:25px 20px}.card{padding:18px}}
+</style>
+</head>
+<body>
+<header><div class="brand">✦ OpportunityPilot <span>AI</span></div><div class="status">Frontend preview · Demo mode</div></header>
+<main>
+<section class="hero"><div class="eyebrow">Your next opportunity, organized</div><h1>Turn notifications<br>into <em>action plans.</em></h1><p>Organize internships, scholarships, hackathons and jobs. Understand what to prepare, what to verify, and what to do next.</p></section>
+<div class="grid">
+<section class="card">
+<h2>Analyze an opportunity</h2><p class="sub">Paste the complete notification below to create a preparation plan.</p>
+<label for="kind">Opportunity type</label>
+<select id="kind"><option value="Auto-detect">Let AI identify</option><option>Internship</option><option>Scholarship</option><option>Hackathon</option><option>Job</option><option>Other</option></select>
+<label for="details">Opportunity details</label>
+<textarea id="details" placeholder="Paste opportunity title, eligibility, deadline, application link and required documents..."></textarea>
+<button class="primary" id="analyze">Create my action plan →</button>
+<div class="result" id="result" aria-live="polite"></div>
+<div class="notice">Demo preview: this standalone file does not call an AI model. It organizes text locally. Connect the backend and reviewer model to enable real AI analysis.</div>
+</section>
+<section>
+<div class="card"><h2>Saved opportunities</h2><p class="sub">Your plans saved on this device.</p><div id="saved" class="list"><div class="empty">No opportunities saved yet.</div></div><button class="secondary" id="refresh">Refresh list</button></div>
+<div class="card"><h2>Execution logs</h2><p class="sub">Actions performed in this preview.</p><div class="log" id="logs">App opened successfully.</div><button class="secondary" id="clearLogs">Clear logs</button></div>
+</section>
+</div>
+<footer>OpportunityPilot AI · Human approval before action</footer>
+</main>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const KEY='opportunitypilot_saved_v1', LOG='opportunitypilot_logs_v1';
+ function read(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}}
+ function write(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+ function log(msg){let a=read(LOG);a.unshift(new Date().toLocaleString()+' — '+msg);write(LOG,a.slice(0,30));renderLogs()}
+ function renderLogs(){$('logs').textContent=read(LOG).join('\n')||'No logs yet.'}
+ function renderSaved(){let a=read(KEY);$('saved').innerHTML='';if(!a.length){$('saved').innerHTML='<div class="empty">No opportunities saved yet.</div>';return}
+ a.forEach((x,i)=>{let d=document.createElement('div');d.className='item';let title=document.createElement('strong');title.textContent=x.title;let meta=document.createElement('small');meta.textContent=x.kind+' · '+x.date;let del=document.createElement('button');del.className='secondary danger';del.textContent='Delete';del.style.marginTop='8px';del.onclick=()=>{let z=read(KEY);z.splice(i,1);write(KEY,z);renderSaved();log('Deleted saved opportunity')};d.append(title,meta,document.createElement('br'),del);$('saved').append(d)})}
+ function extractDeadline(t){let m=t.match(/(?:deadline|last date|apply by|due date)\s*[:\-]?\s*([^\n.]+)/i);return m?m[1].trim():'Not clearly stated — verify from the official source.'}
+ $('analyze').addEventListener('click',()=>{
+  const text=$('details').value.trim();if(!text){alert('Please paste the opportunity notification first.');return}
+  const kind=$('kind').value==='Auto-detect'?( /scholarship|grant/i.test(text)?'Scholarship':/hackathon|buildathon/i.test(text)?'Hackathon':/intern/i.test(text)?'Internship':/job|career|recruit/i.test(text)?'Job':'Opportunity'):$('kind').value;
+  const title=(text.split('\n').map(s=>s.trim()).find(s=>s.length>3)||kind).slice(0,90);
+  const deadline=extractDeadline(text);
+  const tasks=['Read the official announcement carefully.','Check eligibility: year of study, degree, location and other conditions.','Prepare the required documents (resume, ID, certificates or portfolio as applicable).','Verify the deadline and application link on the official website.','Review every answer before submitting; do not share passwords or OTPs.'];
+  $('result').style.display='block';$('result').innerHTML='';
+  let h=document.createElement('h3');h.textContent='Your preparation plan';$('result').append(h);
+  let p=document.createElement('p');p.innerHTML='<span class="pill">Human review required</span> <span class="pill"> '+kind+'</span>'; $('result').append(p);
+  let dl=document.createElement('p');let b=document.createElement('b');b.textContent='Deadline: ';dl.append(b,document.createTextNode(deadline));$('result').append(dl);
+  let ul=document.createElement('ul');tasks.forEach(t=>{let li=document.createElement('li');li.textContent=t;ul.append(li)});$('result').append(ul);
+  let save=document.createElement('button');save.className='secondary';save.textContent='Save this opportunity';save.onclick=()=>{let a=read(KEY);a.unshift({title,kind,date:new Date().toLocaleDateString(),details:text,deadline});write(KEY,a);renderSaved();log('Saved '+kind+': '+title);save.textContent='Saved ✓';save.disabled=true};$('result').append(save);
+  log('Created local demo plan for '+kind);
+ });
+ $('refresh').onclick=renderSaved;$('clearLogs').onclick=()=>{write(LOG,[]);renderLogs()};renderSaved();renderLogs();
+})();
+</script>
+</body></html>

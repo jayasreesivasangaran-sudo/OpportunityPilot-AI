@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpportunityPilot</title>
+<meta name="description" content="Paste an internship, scholarship, hackathon or job notification. Get eligibility, documents, deadline and a dated checklist, reviewed by a second model, with nothing done until you approve.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14202B; --muted:#4F5F6E; --paper:#EDF2F6; --panel:#FFFFFF; --line:#CAD5DF;
+  --navy:#0E2A47; --navy-soft:#1B4167; --sky:#CFE3F5; --amber:#F5A623; --amber-ink:#6B4300;
+  --green:#1D7F5A; --green-soft:#DDF1E8; --red:#B3261E; --red-soft:#FBE4E1; --warn-soft:#FFF1D6;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Instrument Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--body)}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+header.top{background:var(--navy);color:#fff}
+.top-in{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px var(--display);letter-spacing:.2px}
+.brand svg{width:26px;height:26px}
+nav[role=tablist]{display:flex;gap:4px;margin-left:auto}
+nav button{background:none;border:0;color:#B9CCE0;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500}
+nav button[aria-selected=true]{background:var(--navy-soft);color:#fff}
+nav button:hover{color:#fff}
+
+.shell{max-width:1200px;margin:0 auto;padding:24px 20px 72px;display:grid;grid-template-columns:minmax(300px,360px) 1fr;gap:28px;align-items:start}
+.intake{position:sticky;top:16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.intake h2{font-size:20px;margin-bottom:4px}
+.intake p.hint{margin:0 0 12px;color:var(--muted);font-size:14px}
+textarea{width:100%;min-height:300px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;background:#FBFDFE;line-height:1.5;font-size:15px}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;flex:1;min-width:0}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover{background:var(--navy-soft)}
+.btn[disabled]{opacity:.55;cursor:wait}
+.btn.go{background:var(--green)}
+.btn.go:hover{background:#17684a}
+.btn.quiet{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.quiet:hover{background:#F2F6F9}
+.btn.wide{width:100%;margin-top:12px}
+.engine{margin:14px 0 0;font-size:13px;color:var(--muted)}
+.engine b{color:var(--ink);font-weight:600}
+
+#view{min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:18px}
+.card h2{font-size:20px;margin-bottom:10px}
+.card h3{font-size:15px;margin:16px 0 6px;color:var(--muted);font-family:var(--body);font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid2 .card{margin-top:18px}
+ul.plain{list-style:none;margin:0;padding:0}
+ul.plain li{padding:8px 0;border-top:1px solid #E5ECF2;display:flex;gap:10px;align-items:baseline;justify-content:space-between}
+ul.plain li:first-child{border-top:0}
+.tag{font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;background:#E6EEF5;color:#2B4258;white-space:nowrap}
+.tag.soft{background:#F0F0F0;color:#555}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+
+/* The runway: the one memorable element */
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:26px 28px 22px;display:grid;grid-template-columns:1fr auto;gap:8px 32px}
+.hero .kind{margin:0 0 6px;color:var(--sky);font-weight:600;font-size:15px}
+.hero h1{font-size:clamp(26px,3.6vw,38px);font-weight:700;max-width:22ch}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;font-size:15px}
+.facts dt{color:#9FB7CE}
+.facts dd{margin:0;overflow-wrap:anywhere}
+.facts a{color:#fff}
+.count{text-align:right;align-self:center}
+.count .days{font:700 clamp(72px,11vw,128px)/0.9 var(--display);color:var(--amber);letter-spacing:-2px}
+.count .label{font-weight:600;margin-top:4px}
+.count .when{color:#B9CCE0;font-size:14px}
+.count.expired .days,.count.none .days{color:#FF8E86;font-size:clamp(34px,5vw,54px);letter-spacing:0;line-height:1.1}
+.runway{grid-column:1/-1;margin-top:20px}
+.track{position:relative;height:10px;border-radius:99px;background:#24496F}
+.track .fill{position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,#3E78B0,var(--amber));transform-origin:left;animation:draw .9s ease-out both}
+.track .tick{position:absolute;top:-6px;width:3px;height:22px;background:#fff;border-radius:2px;transform:translateX(-1px)}
+.track .tick.end{width:4px;height:30px;top:-10px;background:var(--amber)}
+.ends{display:flex;justify-content:space-between;margin-top:12px;font-size:13px;color:#B9CCE0}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.track .fill{animation:none}}
+
+.verdict{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 8px}
+.badge{display:inline-flex;gap:8px;align-items:center;border-radius:99px;padding:5px 14px;font-weight:600;font-size:14px}
+.badge svg{width:16px;height:16px}
+.badge.approve{background:var(--green-soft);color:#0F5A3F}
+.badge.revise{background:var(--warn-soft);color:var(--amber-ink)}
+.badge.reject{background:var(--red-soft);color:#7E1710}
+.issues{margin:10px 0 0;padding:0;list-style:none}
+.issues li{padding:9px 12px;border-radius:8px;margin-top:6px;display:flex;gap:10px;font-size:15px}
+.issues .sev{font-weight:700;min-width:64px}
+.issues .error{background:var(--red-soft)} .issues .warning{background:var(--warn-soft)} .issues .info{background:#EAF1F7}
+.review-meta{margin:12px 0 0;font-size:13px;color:var(--muted)}
+
+.action{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;padding:14px 0;border-top:1px solid #E5ECF2;align-items:start}
+.action:first-of-type{border-top:0}
+.action input[type=checkbox]{margin-top:5px;width:18px;height:18px;accent-color:var(--green)}
+.action .t{font-weight:600}
+.action details{grid-column:2/-1;font-size:14px;color:var(--muted)}
+.action pre{margin:6px 0 0;padding:10px;background:#F3F7FA;border-radius:8px;overflow:auto;font-size:13px;white-space:pre-wrap}
+.pill{font-size:13px;font-weight:600;border-radius:99px;padding:3px 12px;white-space:nowrap}
+.pill.executed{background:var(--green-soft);color:#0F5A3F}
+.pill.rejected{background:#ECEFF2;color:#4A5663}
+.pill.failed{background:var(--red-soft);color:#7E1710}
+.pill.pending{background:var(--warn-soft);color:var(--amber-ink)}
+.approver{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.approver input[type=text]{border:1px solid var(--line);border-radius:8px;padding:9px 12px;min-width:200px;flex:1;max-width:280px}
+.approver .spacer{flex:1}
+a.dl{font-weight:600;color:var(--navy)}
+
+.day-h{display:flex;justify-content:space-between;align-items:baseline}
+.todo{display:flex;gap:10px;align-items:flex-start;padding:7px 0}
+.todo input{margin-top:5px;width:18px;height:18px;accent-color:var(--navy)}
+.todo label{cursor:pointer}
+.todo input:checked + label{text-decoration:line-through;color:var(--muted)}
+.todo .hi{font-size:12px;font-weight:700;color:var(--amber-ink);background:var(--warn-soft);border-radius:6px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+
+.empty{text-align:center;padding:56px 24px}
+.empty h2{font-size:26px}
+.empty p{max-width:46ch;margin:10px auto;color:var(--muted)}
+.empty .samples{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.msg{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--red-soft);color:#7E1710;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-weight:600;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:10px;border-bottom:1px solid #E5ECF2;vertical-align:top}
+tr.click{cursor:pointer} tr.click:hover td{background:#F4F8FB}
+td button.link{background:none;border:0;padding:0;color:var(--navy);font-weight:600;text-align:left;cursor:pointer;text-decoration:underline}
+.ok{color:#0F5A3F;font-weight:600} .err{color:var(--red);font-weight:600}
+.overflow{overflow-x:auto}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .intake{position:static}
+  .grid2{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .count{text-align:left}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 17 29 4 22 28l-6-9-8 3z" fill="#F5A623"/><path d="M16 19 29 4" stroke="#0E2A47" stroke-width="1.6" fill="none"/></svg>
+    OpportunityPilot
+  </div>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-plan" aria-selected="true" data-tab="plan">Plan</button>
+    <button role="tab" id="tab-history" aria-selected="false" data-tab="history">History</button>
+    <button role="tab" id="tab-jobs" aria-selected="false" data-tab="jobs">Scheduled jobs</button>
+  </nav>
+</div></header>
+
+<main class="shell">
+  <aside class="intake" aria-label="Notification input">
+    <h2>Paste a notification</h2>
+    <p class="hint">An internship, scholarship, hackathon or job post, copied from an email or website.</p>
+    <label class="visually-hidden" for="text">Notification text</label>
+    <textarea id="text" placeholder="Paste the full text here…" spellcheck="false"></textarea>
+    <div class="row">
+      <label class="visually-hidden" for="sample">Load a sample</label>
+      <select id="sample"><option value="">Load a sample…</option></select>
+    </div>
+    <button class="btn wide" id="analyze">Analyze notification</button>
+    <div id="msg" role="alert"></div>
+    <p class="engine" id="engine">Starting…</p>
+  </aside>
+  <section id="view" aria-live="polite"></section>
+</main>
+
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const state = { today: null, run: null, samples: [], tab: 'plan', tokenRequired: false };
+const KIND = { internship:'Internship', scholarship:'Scholarship', hackathon:'Hackathon', job:'Job', other:'Opportunity' };
+const ISO = s => new Date(s + 'T00:00:00');
+const fmt = (s, long) => s ? ISO(s).toLocaleDateString('en-IN', long ? {weekday:'long', day:'numeric', month:'long', year:'numeric'} : {weekday:'short', day:'numeric', month:'short'}) : '';
+const daysFrom = s => Math.round((ISO(s) - ISO(state.today)) / 864e5);
+
+async function api(path, opts = {}, retry = true) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  const tok = sessionStorage.getItem('op-token');
+  if (tok) headers['X-Admin-Token'] = tok;
+  const res = await fetch(path, { ...opts, headers });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && retry) {
+    const t = prompt('This action needs the admin token set by the site owner:');
+    if (t) { sessionStorage.setItem('op-token', t); return api(path, opts, false); }
+  }
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+}
+function showError(e) { $('#msg').innerHTML = e ? `<div class="msg">${esc(e.message || e)}</div>` : ''; }
+
+/* ---------------------------------------------------------------- plan view */
+function emptyView() {
+  return `<div class="card empty">
+    <h2>Know what to do, and by when.</h2>
+    <p>Paste a notification on the left. You get the eligibility rules, the documents to prepare, the real deadline and a dated checklist. Nothing is saved, scheduled or drafted until you approve it.</p>
+    <div class="samples">${state.samples.map(s => `<button class="btn quiet" data-sample="${esc(s.id)}">${esc(s.label)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function runway(a) {
+  const o = a.opportunity;
+  if (!o.deadline || a.days_left == null || a.days_left < 0) return '';
+  const span = Math.max(a.days_left, 1);
+  const byDue = {};
+  a.checklist.forEach(c => { if (c.due) byDue[c.due] = (byDue[c.due] || 0) + 1; });
+  const ticks = Object.entries(byDue).filter(([d]) => d !== o.deadline).map(([d, n]) => {
+    const pct = Math.min(100, Math.max(0, daysFrom(d) / span * 100));
+    return `<span class="tick" style="left:${pct}%" title="${n} task${n > 1 ? 's' : ''} due ${esc(fmt(d))}"></span>`;
+  }).join('');
+  return `<div class="runway" role="img" aria-label="Timeline from today to the deadline, with a mark for each day a task is due">
+    <div class="track"><span class="fill"></span>${ticks}<span class="tick end" style="left:100%" title="Deadline"></span></div>
+    <div class="ends"><span>Today, ${esc(fmt(state.today))}</span><span>Each white mark is a day with tasks due</span><span>Deadline, ${esc(fmt(o.deadline))}</span></div>
+  </div>`;
+}
+
+function hero(run) {
+  const a = run.analysis, o = a.opportunity;
+  let count;
+  if (a.days_left == null) count = `<div class="count none"><div class="days">No deadline found</div><div class="when">Check the notification yourself</div></div>`;
+  else if (a.days_left < 0) count = `<div class="count expired"><div class="days">Deadline passed</div><div class="when">${esc(fmt(o.deadline, true))}</div></div>`;
+  else count = `<div class="count"><div class="days">${a.days_left}</div><div class="label">${a.days_left === 1 ? 'day' : 'days'} to apply</div><div class="when">${esc(fmt(o.deadline, true))}</div></div>`;
+  const facts = [
+    ['Organisation', o.organization], ['Place', o.location || (o.mode !== 'unknown' ? o.mode : null)], ['Pay or prize', o.benefits],
+    ['Apply', o.apply_url ? `<a href="${esc(/^https?:/.test(o.apply_url) ? o.apply_url : 'https://' + o.apply_url)}" target="_blank" rel="noopener noreferrer">${esc(o.apply_url)}</a>` : (o.contact_email ? esc(o.contact_email) : null)],
+  ].filter(f => f[1]).map(([k, v]) => `<dt>${k}</dt><dd>${k === 'Apply' ? v : esc(v)}</dd>`).join('');
+  return `<section class="hero">
+    <div><p class="kind">${esc(KIND[o.kind] || 'Opportunity')}</p><h1>${esc(o.title || 'Untitled notification')}</h1><dl class="facts">${facts}</dl></div>
+    ${count}${runway(a)}
+  </section>`;
+}
+
+function reviewCard(run) {
+  const rv = run.review;
+  const label = { approve: 'Looks reliable', revise: 'Needs your attention', reject: 'Not an opportunity' }[rv.verdict];
+  const icon = { approve: '<path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2"/>', revise: '<path d="M8 2 15 14H1zM8 6v4m0 2v.5" fill="none" stroke="currentColor" stroke-width="1.6"/>', reject: '<path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="2"/>' }[rv.verdict];
+  const sev = { error: 'Wrong', warning: 'Check', info: 'Note' };
+  return `<section class="card" aria-labelledby="h-review"><h2 id="h-review">Second opinion</h2>
+    <p class="verdict"><span class="badge ${rv.verdict}"><svg viewBox="0 0 16 16" aria-hidden="true">${icon}</svg>${label}</span><span class="muted">Trust score ${rv.score} out of 100</span></p>
+    <p style="margin:0">${esc(rv.summary)}</p>
+    ${rv.issues.length ? `<ul class="issues">${rv.issues.map(i => `<li class="${esc(i.severity)}"><span class="sev">${sev[i.severity] || 'Note'}</span><span><b>${esc(i.field.replace(/_/g, ' '))}:</b> ${esc(i.problem)}</span></li>`).join('')}</ul>` : ''}
+    <p class="review-meta">Written by ${esc(run.analysis.extractor)}. Reviewed by ${esc(rv.reviewer)}.${rv.revisions ? ` Revised ${rv.revisions} time.` : ''}${rv.auto_fixes.length ? ` Removed unsupported claims: ${esc(rv.auto_fixes.join('; '))}.` : ''}</p>
+  </section>`;
+}
+
+function resultText(a) {
+  const r = a.result; if (!r) return '';
+  if (r.file) return ` <a class="dl" href="/api/exports/${encodeURIComponent(r.file)}">Download ${esc(r.file)}</a>`;
+  if (r.reminders_created != null) return ` ${r.reminders_created} reminders set for ${esc(r.dates.map(d => fmt(d)).join(', '))}.`;
+  if (r.tracked) return ' Added to your tracker.';
+  if (r.error) return ' ' + esc(r.error);
+  return '';
+}
+function actionsCard(run) {
+  if (run.review.verdict === 'reject') return '';
+  const pending = run.actions.filter(a => a.status === 'pending');
+  const name = localStorage.getItem('op-approver') || '';
+  const rows = run.actions.map(a => {
+    const decided = a.status !== 'pending';
+    const label = { executed: 'Done', rejected: 'Skipped', failed: 'Failed', pending: 'Waiting' }[a.status] || a.status;
+    return `<div class="action">
+      ${decided ? '<span></span>' : `<input type="checkbox" id="act-${a.id}" value="${a.id}" checked aria-label="Approve ${esc(a.title)}">`}
+      <div><label class="t" ${decided ? '' : `for="act-${a.id}"`}>${esc(a.title)}</label><div class="muted small">${esc(a.rationale)}${resultText(a)}</div></div>
+      <span class="pill ${esc(a.status)}">${label}</span>
+      <details><summary>What exactly will happen</summary><pre>${esc(JSON.stringify(a.payload, null, 2))}</pre></details>
+    </div>`;
+  }).join('');
+  const footer = pending.length ? `<div class="approver">
+      <label class="visually-hidden" for="approver">Your name</label>
+      <input type="text" id="approver" placeholder="Your name, for the log" value="${esc(name)}" maxlength="60" autocomplete="name">
+      <span class="spacer"></span>
+      <button class="btn quiet" id="reject-all">Skip all</button>
+      <button class="btn go" id="approve-sel">Approve selected</button></div>` : '';
+  return `<section class="card" aria-labelledby="h-act"><h2 id="h-act">${pending.length ? 'Waiting for your approval' : 'Actions'}</h2>
+    <p class="muted small" style="margin:0 0 6px">${pending.length ? 'Nothing below has happened yet. Untick anything you do not want.' : 'Every decision is recorded in the audit log.'}</p>
+    ${rows}${footer}</section>`;
+}
+
+function detailCards(run) {
+  const o = run.analysis.opportunity;
+  const elig = o.eligibility.length ? `<ul class="plain">${o.eligibility.map(c => `<li><span>${esc(c.text)}</span><span class="tag ${c.mandatory ? '' : 'soft'}">${c.mandatory ? esc(c.category) : 'preferred'}</span></li>`).join('')}</ul>` : '<p class="muted">The notification does not list eligibility rules.</p>';
+  const docs = o.required_documents.length ? `<ul class="plain">${o.required_documents.map(d => `<li><span>${esc(d)}</span></li>`).join('')}</ul>` : '<p class="muted">No documents are mentioned.</p>';
+  const missing = o.missing_info.length ? `<h3>The notification does not say</h3><ul class="plain">${o.missing_info.map(m => `<li><span>${esc(m)}</span></li>`).join('')}</ul>` : '';
+  const dates = o.key_dates.length ? `<h3>Other dates</h3><ul class="plain">${o.key_dates.map(k => `<li><span>${esc(k.label)}</span><span class="muted">${esc(fmt(k.date, true))}</span></li>`).join('')}</ul>` : '';
+  return `<div class="grid2">
+    <section class="card" aria-labelledby="h-el"><h2 id="h-el">Can you apply?</h2>${elig}${dates}</section>
+    <section class="card" aria-labelledby="h-doc"><h2 id="h-doc">What to prepare</h2>${docs}${missing}</section></div>`;
+}
+
+function checklistCard(run) {
+  const items = run.analysis.checklist;
+  if (!items.length) return '';
+  const groups = {};
+  items.forEach((c, i) => (groups[c.due || 'later'] ||= []).push([c, i]));
+  const done = JSON.parse(localStorage.getItem('op-done-' + run.id) || '{}');
+  const html = Object.entries(groups).map(([d, list]) => {
+    const n = d === 'later' ? null : daysFrom(d);
+    const when = d === 'later' ? 'No date' : fmt(d);
+    const rel = n == null ? '' : n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`;
+    return `<h3 class="day-h"><span>${esc(when)}</span><span class="small">${rel}</span></h3>` + list.map(([c, i]) => `<div class="todo">
+      <input type="checkbox" id="td-${i}" data-i="${i}" ${done[i] ? 'checked' : ''}><label for="td-${i}">${esc(c.task)}${c.priority === 'high' ? '<span class="hi">Important</span>' : ''}</label></div>`).join('');
+  }).join('');
+  return `<section class="card" aria-labelledby="h-ck"><h2 id="h-ck">Your checklist</h2>${html}</section>`;
+}
+
+function renderRun(run) {
+  state.run = run;
+  $('#view').innerHTML = hero(run) + reviewCard(run) + actionsCard(run) + (run.review.verdict === 'reject' ? '' : detailCards(run) + checklistCard(run));
+  $('#view').scrollIntoView?.({ block: 'start', behavior: 'instant' });
+}
+
+async function decide(approve, reject) {
+  const approver = ($('#approver')?.value || '').trim();
+  if (approver) localStorage.setItem('op-approver', approver);
+  try {
+    showError(null);
+    renderRun(await api(`/api/runs/${state.run.id}/decision`, { method: 'POST', body: JSON.stringify({ approve, reject, approver }) }));
+  } catch (e) { showError(e); }
+}
+
+/* ---------------------------------------------------------------- history + jobs */
+async function showHistory() {
+  const runs = await api('/api/runs');
+  $('#view').innerHTML = `<section class="card"><h2>Everything you have analysed</h2>` + (runs.length ? `<div class="overflow"><table>
+    <thead><tr><th>Opportunity</th><th>Deadline</th><th>Status</th></tr></thead><tbody>${runs.map(r => `<tr class="click" data-run="${r.id}">
+    <td><button class="link" data-run="${r.id}">${esc(r.title || 'Untitled')}</button><div class="muted small">${esc(KIND[r.kind] || '')}</div></td>
+    <td>${esc(r.deadline ? fmt(r.deadline) : 'None found')}</td>
+    <td>${esc({ pending_approval: 'Waiting for approval', decided: r.tracked ? 'Tracked' : 'Decided', rejected: 'Rejected', expired: 'Deadline passed' }[r.status] || r.status)}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="muted">Nothing yet. Analyse a notification and it will appear here.</p>') + '</section>';
+}
+async function showJobs() {
+  const [j, audit] = await Promise.all([api('/api/jobs?limit=25'), api('/api/audit?limit=25')]);
+  $('#view').innerHTML = `<section class="card"><h2>Scheduled jobs</h2>
+    <p class="muted small" style="margin-top:0">These run on their own. Each run is logged below, including failures.</p>
+    <div class="row" style="margin:0 0 12px">${j.available.map(n => `<button class="btn quiet" data-job="${esc(n)}">Run ${esc(n.replace(/_/g, ' '))} now</button>`).join('')}</div>
+    <div class="overflow"><table><thead><tr><th>Started</th><th>Job</th><th>Result</th><th>Took</th></tr></thead><tbody>${j.jobs.map(r => `<tr>
+      <td>${esc(r.started_at.replace('T', ' ').slice(0, 16))}</td><td>${esc(r.job.replace(/_/g, ' '))}</td>
+      <td class="${r.status === 'ok' ? 'ok' : 'err'}">${esc(r.status)} <span class="muted" style="font-weight:400">${esc(r.error || JSON.stringify(r.detail))}</span></td><td>${r.duration_ms ?? ''} ms</td></tr>`).join('') || '<tr><td colspan="4" class="muted">No runs yet.</td></tr>'}</tbody></table></div></section>
+    <section class="card"><h2>Audit log</h2><div class="overflow"><table><thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead><tbody>${audit.map(a => `<tr>
+      <td>${esc(a.ts.replace('T', ' ').slice(0, 16))}</td><td>${esc(a.actor)}</td><td>${esc(a.event.replace(/_/g, ' '))}${a.run_id ? ` on run ${a.run_id}` : ''}</td></tr>`).join('') || '<tr><td colspan="3" class="muted">Nothing yet.</td></tr>'}</tbody></table></div></section>`;
+}
+
+function setTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('nav [role=tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
+  if (tab === 'plan') state.run ? renderRun(state.run) : ($('#view').innerHTML = emptyView());
+  else if (tab === 'history') showHistory().catch(showError);
+  else showJobs().catch(showError);
+}
+
+/* ---------------------------------------------------------------- wiring */
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button, tr[data-run]'); if (!t) return;
+  if (t.dataset.tab) return setTab(t.dataset.tab);
+  if (t.dataset.sample) { $('#text').value = state.samples.find(s => s.id === t.dataset.sample).text; return $('#analyze').click(); }
+  if (t.dataset.run) { try { renderRun(await api('/api/runs/' + t.dataset.run)); setTab('plan'); } catch (err) { showError(err); } return; }
+  if (t.dataset.job) { try { await api(`/api/jobs/${t.dataset.job}/run`, { method: 'POST' }); showJobs(); } catch (err) { showError(err); } return; }
+  if (t.id === 'approve-sel') return decide([...document.querySelectorAll('.action input:checked')].map(i => +i.value), [...document.querySelectorAll('.action input:not(:checked)')].map(i => +i.value));
+  if (t.id === 'reject-all') return decide([], state.run.actions.filter(a => a.status === 'pending').map(a => a.id));
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('.todo input') && state.run) {
+    const k = 'op-done-' + state.run.id, d = JSON.parse(localStorage.getItem(k) || '{}');
+    d[e.target.dataset.i] = e.target.checked; localStorage.setItem(k, JSON.stringify(d));
+  }
+});
+$('#sample').addEventListener('change', e => { const s = state.samples.find(x => x.id === e.target.value); if (s) $('#text').value = s.text; });
+$('#analyze').addEventListener('click', async () => {
+  const btn = $('#analyze'); showError(null);
+  btn.disabled = true; btn.textContent = 'Reading and checking…';
+  try { const run = await api('/api/analyze', { method: 'POST', body: JSON.stringify({ text: $('#text').value }) }); setTab('plan'); renderRun(run); }
+  catch (err) { showError(err); }
+  finally { btn.disabled = false; btn.textContent = 'Analyze notification'; }
+});
+
+(async function init() {
+  try {
+    const [h, samples] = await Promise.all([api('/api/health'), api('/api/samples')]);
+    state.today = h.today; state.samples = samples; state.tokenRequired = h.approval_requires_token;
+    $('#sample').innerHTML += samples.map(s => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join('');
+    $('#engine').innerHTML = `<b>Writer:</b> ${esc(h.extractor)}<br><b>Reviewer:</b> ${esc(h.reviewer)}`;
+    $('#view').innerHTML = emptyView();
+  } catch (e) { showError(e); }
+})();
+</script>
+</body>
+</html>

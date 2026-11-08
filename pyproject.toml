@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opportunitypilot"
+version = "1.0.0"
+description = "AI agent + MCP server that turns opportunity notifications into approved, scheduled action plans."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "flask>=3.0",
+  "pydantic>=2.6",
+  "requests>=2.31",
+  "mcp>=1.2",
+  "python-dotenv>=1.0",
+  "tzdata",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+prod = ["gunicorn>=22"]
+
+[project.scripts]
+opportunitypilot-web = "opportunitypilot.web:main"
+opportunitypilot-mcp = "opportunitypilot.mcp_server:main"
+opportunitypilot-jobs = "opportunitypilot.scheduler:main"
+opportunitypilot-cli = "opportunitypilot.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+opportunitypilot = ["static/*"]
